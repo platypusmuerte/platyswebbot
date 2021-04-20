@@ -9,6 +9,8 @@ class Database {
 	constructor(params) {
 		const adapter = new FileSync('db.json');
 		this.db = low(adapter);
+
+		this.setDefaults();
 	}
 
 	setDefaults() {
