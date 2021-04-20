@@ -21,7 +21,7 @@ app.get('/:user/:mtype', (req, res)=>{
 });
 
 app.listen(port, ()=>{
-	console.log("Listening on 3000");
+	console.log("Listening on " + port);
 });
 
 
