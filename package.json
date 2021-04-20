@@ -14,7 +14,7 @@
 		"express": "4.17.1",
 		"fs-extra": "9.1.0",
 		"lowdb": "1.0.0",
-		"mustache": "4.2.0",
+		"mariadb": "2.5.3",
 		"tmi.js": "1.8.3"
 	}
 }

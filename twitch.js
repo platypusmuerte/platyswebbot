@@ -9,13 +9,6 @@ class TwitchJS {
 	}
 
 	init() {
-		let existingUsers = this.database.getUsers();
-		let users = [];
-
-		existingUsers.forEach((u)=>{
-			users.push(u.cname);
-		});
-
 		this.client = new tmi.Client({
 			connection: {
 				reconnect: true
@@ -56,40 +49,49 @@ class TwitchJS {
 	}
 
 	addUser(channel, user) {
-		if(this.database.getUser(user)) {
-			this.say(channel, "I already know " + user + ". <3");
-		} else {
-			this.database.addUser(user);
-			this.say(channel, "I am now aware of " + user + ". SeemsGood");
-		}
+		this.database.getUser(user).then((dbres)=>{
+			if(dbres) {
+				this.say(channel, "I already know " + user + ". <3");
+			} else {
+				this.database.addUser(user);
+				this.say(channel, "I am now aware of " + user + ". SeemsGood");
+			}
+		});		
 	}
 
 	removeUser(channel, user) {
-		if(this.database.getUser(user)) {
-			this.database.removeUser(user);
-			this.say(channel, "Bye " + user + " :D");
-		} else {
-			this.say(channel, "I don't know you like that " + user + " FBBlock");
-		}
+		this.database.getUser(user).then((dbres)=>{
+			if(dbres) {
+				this.database.removeUser(user).then(()=>{
+					this.say(channel, "Bye " + user + " :D");
+				});
+			} else {
+				this.say(channel, "I don't know you like that " + user + " FBBlock");
+			}			
+		});
 	}
 
 	sendTest(channel, user) {
-		if(this.database.getUser(user)) {
-			this.say(channel, "I'll say hi now " + user + " R)");
-			this.say("#" + user, "Hi there " + user + " B)");
-		} else {
-			this.say(channel, "I don't know you like that " + user + " FBBlock");
-		}
+		this.database.getUser(user).then((dbres)=>{
+			if(dbres) {
+				this.say(channel, "I'll say hi now " + user + " R)");
+				this.say("#" + user, "Hi there " + user + " B)");
+			} else {
+				this.say(channel, "I don't know you like that " + user + " FBBlock");
+			}			
+		});
 	}
 
 	triggerMessage(user,msgType, data) {
-		if(this.database.getUser(user)) {
-			switch(msgType) {
-				case constants.MESSAGETYPES.SQUARE:
-					this.squareMessage(user, data);
-				break;
-			}
-		}
+		this.database.getUser(user).then((dbres)=>{
+			if(dbres) {
+				switch(msgType) {
+					case constants.MESSAGETYPES.SQUARE:
+						this.squareMessage(user, data);
+					break;
+				}
+			}			
+		});
 	}
 
 	squareMessage(user, data) {

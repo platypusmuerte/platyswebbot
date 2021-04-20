@@ -1,36 +1,87 @@
 const {constants} = require("./constants");
-const path = require('path');
-const fs = require('fs-extra');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+const mariadb = require("mariadb");
 
 
 class Database {
 	constructor(params) {
-		const adapter = new FileSync('db.json');
-		this.db = low(adapter);
-
-		this.setDefaults();
+		this.connect();
+		this.initialized = false;
 	}
 
-	setDefaults() {
-		this.db.defaults({v: 1, users: []}).write();
+	setInitialized(b) {
+		this.initialized = b;
 	}
 
-	getUsers() {
-		return this.db.get("users").value();
+	connect() {
+		let initialized = this.initialized;
+
+		return new Promise((resolve, reject)=>{
+			mariadb.createConnection({
+				host: process.env.DB_HOST,
+				user: process.env.DB_USER,
+				password: process.env.DB_PASSWORD
+			}).then(conn => {
+				if(!initialized) {
+					this.createTable(conn).then(()=>{
+						resolve(conn);
+					});
+				} else {
+					resolve(conn);
+				}
+			}).catch(err =>{
+				console.log("sql error: " + err);
+			});
+		});		
+	}
+
+	createTable(conn) {
+		return new Promise((resolve, reject)=>{
+			conn.query("create table if not exists " + process.env.DB_NAME + "." + process.env.DB_TABLE + "(userid int auto_increment, username varchar(100) not null, primary key(userid));").then(rows => {
+				this.setInitialized(true);
+				resolve();
+			}).catch(err =>{
+				console.log("sql error: " + err);
+				resolve();
+			});
+		});		
 	}
 
 	getUser(user) {
-		return this.db.get("users").find({user}).value();
+		return new Promise((resolve, reject)=>{
+			this.connect().then((conn)=>{
+				conn.query("select username from " + process.env.DB_NAME + "." + process.env.DB_TABLE + " where username='" + user + "';").then(rows => {
+					resolve(rows[0]);
+				}).catch(err =>{
+					console.log("sql error: " + err);
+				});
+			});
+		});		
 	}
 
 	addUser(user) {
-		this.db.get("users").push({user}).write();
+		return new Promise((resolve, reject)=>{
+			this.connect().then((conn)=>{
+				conn.query("insert into " + process.env.DB_NAME + "." + process.env.DB_TABLE + " (username) values ('" + user + "');").then(rows => {
+					console.log("Added " + user);
+					resolve();
+				}).catch(err =>{
+					console.log("sql error: " + err);
+				});
+			});
+		});	
 	}
 
 	removeUser(user) {
-		this.db.get("users").remove({user}).write();
+		return new Promise((resolve, reject)=>{
+			this.connect().then((conn)=>{
+				conn.query("delete from " + process.env.DB_NAME + "." + process.env.DB_TABLE + " where username='" + user + "';").then(rows => {
+					console.log("Removed " + user);
+					resolve();
+				}).catch(err =>{
+					console.log("sql error: " + err);
+				});
+			});
+		});
 	}
 
 	
