@@ -1,0 +1,20 @@
+{
+	"name": "squarebot",
+	"version": "1.0.0",
+	"description": "square notifications",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"test": "test"
+	},
+	"author": "platypusmuerte",
+	"license": "ISC",
+	"dependencies": {
+		"dotenv": "8.2.0",
+		"express": "4.17.1",
+		"fs-extra": "9.1.0",
+		"lowdb": "1.0.0",
+		"mustache": "4.2.0",
+		"tmi.js": "1.8.3"
+	}
+}
