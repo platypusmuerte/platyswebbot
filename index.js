@@ -15,8 +15,8 @@ twitchjs.init();
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-app.get('/:user/:mtype', (req, res)=>{
-	twitchjs.triggerMessage(req.params.user, req.params.mtype, req.body);
+app.get('/:user/:code/:mtype', (req, res)=>{
+	twitchjs.triggerMessage(req.params.user, req.params.code, req.params.mtype, req.body);
 	res.send("");
 });
 

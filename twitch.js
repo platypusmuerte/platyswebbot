@@ -1,5 +1,6 @@
 const {constants} = require("./constants");
 const tmi = require("tmi.js");
+const {uid} = require('uid');
 
 
 class TwitchJS {
@@ -22,13 +23,22 @@ class TwitchJS {
 
 		this.client.connect();
 
-		this.client.on("message", async (channel, context, message) => {
-			this.processMessage({
-				channel,
-				user: context.username,
-				message
+		try {
+			this.client.on("message", (channel, context, message) => {
+				try {
+					this.processMessage({
+						channel,
+						user: context.username,
+						message
+					});
+				} catch(e) {
+					console.log(e);
+				}
 			});
-		});
+		} catch(e) {
+			console.log(e);
+		}
+		
 
 		console.log("Listening on Twitch");
 	}
@@ -53,8 +63,11 @@ class TwitchJS {
 			if(dbres) {
 				this.say(channel, "I already know " + user + ". <3");
 			} else {
-				this.database.addUser(user);
-				this.say(channel, "I am now aware of " + user + ". SeemsGood");
+				let uidStr = uid();
+
+				this.database.addUser(user,uidStr);
+				//this.say(channel, "I will whisper your code to you " + user + ". SeemsGood");
+				this.whisper(channel, user, "(will be whisper once verified)Your url code is: " + uidStr + " Do not share this code.");
 			}
 		});		
 	}
@@ -82,25 +95,30 @@ class TwitchJS {
 		});
 	}
 
-	triggerMessage(user,msgType, data) {
-		this.database.getUser(user).then((dbres)=>{
+	triggerMessage(user, code, msgType, data) {
+		this.database.getUser(user, code).then((dbres)=>{
 			if(dbres) {
 				switch(msgType) {
 					case constants.MESSAGETYPES.SQUARE:
-						this.squareMessage(user, data);
+						this.squareMessage(user, code, data);
 					break;
 				}
 			}			
 		});
 	}
 
-	squareMessage(user, data) {
-		console.log(user, data);
-		//this.say("#" + user, "Testing msg type 1");
+	squareMessage(user, code, data) {
+		console.log(user, code, data);
+		this.say("#" + user, "Testing msg type 1");
 	}
 
 	say(channel, msg) {
 		this.client.say(channel, msg);
+	}
+
+	whisper(channel, user,msg) {
+		//this.client.whisper(user,msg);
+		this.client.say(channel, msg);		
 	}
 }
 

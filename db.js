@@ -12,6 +12,17 @@ class Database {
 		this.initialized = b;
 	}
 
+	getQuery(q,vars) {
+		let qvars = [{t: "{DBNAME}", v: process.env.DB_NAME}, {t: "{TABLENAME}", v: process.env.DB_TABLE}, ...vars];
+		let query = q;
+
+		qvars.forEach((qv)=>{
+			query = query.replace(qv.t, qv.v);
+		});
+
+		return query;
+	}
+
 	connect() {
 		let initialized = this.initialized;
 
@@ -36,7 +47,7 @@ class Database {
 
 	createTable(conn) {
 		return new Promise((resolve, reject)=>{
-			conn.query("create table if not exists " + process.env.DB_NAME + "." + process.env.DB_TABLE + "(userid int auto_increment, username varchar(100) not null, primary key(userid));").then(rows => {
+			conn.query(this.getQuery(constants.QUERIES.CREATETABLE,[])).then(rows => {
 				this.setInitialized(true);
 				resolve();
 			}).catch(err =>{
@@ -46,10 +57,12 @@ class Database {
 		});		
 	}
 
-	getUser(user) {
+	getUser(user, code) {
+		let q = (code) ? this.getQuery(constants.QUERIES.GET_USER_BY_CODE,[{t: "{USER}", v:user},{t: "{URLKEY}", v:code}]):this.getQuery(constants.QUERIES.GET_USER,[{t: "{USER}", v:user}]);
+
 		return new Promise((resolve, reject)=>{
 			this.connect().then((conn)=>{
-				conn.query("select username from " + process.env.DB_NAME + "." + process.env.DB_TABLE + " where username='" + user + "';").then(rows => {
+				conn.query(q).then(rows => {
 					resolve(rows[0]);
 				}).catch(err =>{
 					console.log("sql error: " + err);
@@ -58,10 +71,10 @@ class Database {
 		});		
 	}
 
-	addUser(user) {
+	addUser(user, urlkey) {
 		return new Promise((resolve, reject)=>{
 			this.connect().then((conn)=>{
-				conn.query("insert into " + process.env.DB_NAME + "." + process.env.DB_TABLE + " (username) values ('" + user + "');").then(rows => {
+				conn.query(this.getQuery(constants.QUERIES.ADD_USER,[{t: "{USER}", v:user},{t: "{URLKEY}", v: urlkey}])).then(rows => {
 					console.log("Added " + user);
 					resolve();
 				}).catch(err =>{
@@ -74,7 +87,7 @@ class Database {
 	removeUser(user) {
 		return new Promise((resolve, reject)=>{
 			this.connect().then((conn)=>{
-				conn.query("delete from " + process.env.DB_NAME + "." + process.env.DB_TABLE + " where username='" + user + "';").then(rows => {
+				conn.query(this.getQuery(constants.QUERIES.REMOVE_USER,[{t: "{USER}", v:user}])).then(rows => {
 					console.log("Removed " + user);
 					resolve();
 				}).catch(err =>{
