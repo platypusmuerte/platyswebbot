@@ -108,8 +108,10 @@ class TwitchJS {
 	}
 
 	squareMessage(user, code, data) {
-		console.log(user, code, data);
-		this.say("#" + user, "@" + data.streamName + " just donated " + data.amount + "(" + data.currencySymbol + ")!!! Thank you.");
+		//console.log(user, code, data);
+		if(data.streamName.length > 0) {
+			this.say("#" + user, "@" + data.streamName + " just donated " + data.amount + "  (" + data.currencySymbol + ")!!! Thank you.");
+		}		
 	}
 
 	say(channel, msg) {
