@@ -109,7 +109,7 @@ class TwitchJS {
 
 	squareMessage(user, code, data) {
 		console.log(user, code, data);
-		this.say("#" + user, "Testing msg endpoint");
+		this.say("#" + user, "@" + data.streamName + " just donated " + data.amount + "(" + data.currencySymbol + ")!!! Thank you.");
 	}
 
 	say(channel, msg) {
