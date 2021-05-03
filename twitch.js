@@ -109,7 +109,7 @@ class TwitchJS {
 
 	squareMessage(user, code, data) {
 		console.log(user, code, data);
-		this.say("#" + user, "Testing msg type 1");
+		this.say("#" + user, "Testing msg endpoint");
 	}
 
 	say(channel, msg) {
