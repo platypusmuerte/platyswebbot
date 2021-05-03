@@ -29,7 +29,7 @@ app.post('/square/donos/:user', (req, res)=>{
 	database.getUser(req.params.user).then((dbres)=>{
 		if(dbres) {
 			if(squarejs.isValid(body, process.env.ENDPOINT_HOST + "square/donos/" + req.params.user, signature, dbres.urlkey)) {
-				twitchjs.triggerMessage(req.params.user, dbres.urlkey, "square", squarejs.getPaymentInfo(req.body.data));
+				//twitchjs.triggerMessage(req.params.user, dbres.urlkey, "square", squarejs.getPaymentInfo(req.body.data));
 				res.send("");
 			} else {
 				console.log("invalid, dropped");
