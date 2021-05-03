@@ -44,7 +44,7 @@ app.get( '/' + process.env.ADMIN_KEY + '/adduser/:user/:squarekey', (req, res)=>
 	database.getUser(req.params.user).then((dbres)=>{
 		if(dbres) {
 			res.send("I already know " + req.params.user + ". <3");
-		} else {database.addUser(req.params.userer,req.params.squarekey);
+		} else {database.addUser(req.params.user,req.params.squarekey);
 			res.send("Adding " + req.params.user + " complete.");
 		}
 	});
