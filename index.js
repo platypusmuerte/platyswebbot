@@ -24,7 +24,7 @@ app.post('/square/donos/:user', (req, res)=>{
 	let body = JSON.stringify(req.body);
 
 	console.log("processing  square dono for: " + req.params.user);
-	console.log(req.body);
+	console.log(JSON.stringify(req.body));
 
 	database.getUser(req.params.user).then((dbres)=>{
 		if(dbres) {
