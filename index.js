@@ -18,11 +18,7 @@ twitchjs.init();
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-app.get('/:user/:code/:mtype', (req, res)=>{
-	twitchjs.triggerMessage(req.params.user, req.params.code, req.params.mtype, req.body);
-	res.send("");
-});
-
+/* respond to square calls */
 app.post('/square/donos/:user', (req, res)=>{
 	let signature = req.header('x-square-signature');
 	let body = JSON.stringify(req.body);
@@ -38,6 +34,36 @@ app.post('/square/donos/:user', (req, res)=>{
 		} else {
 			res.send("");
 		}
+	});
+});
+
+/* add user via url */
+app.get( '/' + process.env.ADMIN_KEY + '/adduser/:user/:squarekey', (req, res)=>{
+	console.log("adding new user: " + req.params.user);
+
+	database.getUser(req.params.user).then((dbres)=>{
+		if(dbres) {
+			res.send("I already know " + req.params.user + ". <3");
+		} else {database.addUser(usreq.params.userer,req.params.squarekey);
+			res.send("Adding " + req.params.user + " complete.");
+		}
+	});
+});
+
+
+
+/* remove user via url */
+app.get( '/' + process.env.ADMIN_KEY + '/removeuser/:user/:squarekey', (req, res)=>{
+	console.log("adding new user: " + req.params.user);
+
+	database.getUser(req.params.user,req.params.squarekey).then((dbres)=>{
+		if(dbres) {
+			database.removeUser(req.params.user).then(()=>{
+				res.send("Removed " + req.params.user);
+			});
+		} else {
+			res.send("Was not able to remove " + req.params.user);
+		}			
 	});
 });
 
