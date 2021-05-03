@@ -24,11 +24,15 @@ app.post('/square/donos/:user', (req, res)=>{
 	let body = JSON.stringify(req.body);
 
 	console.log("processing  square dono for: " + req.params.user);
+	console.log(req.body);
 
 	database.getUser(req.params.user).then((dbres)=>{
 		if(dbres) {
 			if(squarejs.isValid(body, process.env.ENDPOINT_HOST + "square/donos/" + req.params.user, signature, dbres.urlkey)) {
 				twitchjs.triggerMessage(req.params.user, dbres.urlkey, "square", squarejs.getPaymentInfo(req.body.data));
+				res.send("");
+			} else {
+				console.log("invalid, dropped");
 				res.send("");
 			}
 		} else {
